@@ -1,0 +1,149 @@
+Description:
+  "The template For MHIR's account to import security service "
+Parameters:
+  S3LogBucketName:
+    Type: String
+    Default:  # 各アカウントに合わせる #
+    
+  CloudTrailName:
+    Type: String
+    Default:  # 各アカウントに合わせる #
+
+Resources:
+## SecurityHub ##
+  SecurityHub:
+    Type: AWS::SecurityHub::Hub
+    DeletionPolicy: Retain
+
+## AwsConfig Link-Role ##
+  ServiceLinkedRoleForConfig:
+    Type: AWS::IAM::ServiceLinkedRole
+    DeletionPolicy: Retain
+    Properties:
+      AWSServiceName: config.amazonaws.com
+      Description: Allows Config to call AWS services and collect resource configurations on your behalf.
+
+## S3 ##
+  S3LogBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      AccessControl: Private
+      BucketName: !Ref S3LogBucketName
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: 'true'
+        BlockPublicPolicy: 'true'
+        IgnorePublicAcls: 'true'
+        RestrictPublicBuckets: 'true'
+      Tags:
+      - Key: Name
+        Value: !Ref S3LogBucketName 
+      VersioningConfiguration:
+        Status: Suspended        
+  policyS3LogBucket:
+    Type: AWS::S3::BucketPolicy
+    DeletionPolicy: Retain
+    Properties:
+      Bucket: !Ref S3LogBucketName
+      PolicyDocument:
+        Statement:
+        - Action: s3:GetBucketAcl
+          Effect: Allow
+          Principal:
+            Service: cloudtrail.amazonaws.com
+          Resource: 
+          - !Join ['', ['arn:aws:s3:::', !Ref 'S3LogBucketName']]
+          Sid: AWSCloudTrailAclCheck
+        - Action: s3:PutObject
+          Condition:
+            StringEquals:
+              s3:x-amz-acl: bucket-owner-full-control
+          Effect: Allow
+          Principal:
+            Service: cloudtrail.amazonaws.com
+          Resource: 
+          - !Join ['', ['arn:aws:s3:::', !Ref 'S3LogBucketName', /CloudTrail/*]]
+          Sid: AWSCloudTrailWrite
+        - Action: s3:*
+          Condition:
+            Bool:
+              aws:SecureTransport: 'false'
+          Effect: Deny
+          Principal: "*"
+          Resource: 
+          - !Join ['', ['arn:aws:s3:::', !Ref 'S3LogBucketName', /*]]
+          Sid: S3BucketHTTPSOnlyPolicy
+        - Action: s3:GetBucketAcl
+          Effect: Allow
+          Principal:
+            Service: config.amazonaws.com
+          Resource: 
+          - !Join ['', ['arn:aws:s3:::', !Ref 'S3LogBucketName']]
+          Sid: AWSConfigBucketPermissionsCheck
+        - Action: s3:PutObject
+          Condition:
+            StringEquals:
+              s3:x-amz-acl: bucket-owner-full-control
+          Effect: Allow
+          Principal:
+            Service: config.amazonaws.com
+          Resource:
+          - !Join ['', ['arn:aws:s3:::', !Ref 'S3LogBucketName', /AWSConfig/*]]
+          Sid: AWSConfigBucketDelivery
+       
+## CloudTrail ##
+  CloudTrail:
+    DependsOn:
+      - S3LogBucket
+    Type: AWS::CloudTrail::Trail
+    DeletionPolicy: Retain
+    Properties:
+      EnableLogFileValidation: 'true'
+      EventSelectors:
+        - DataResources: 
+            # All S3 buckets
+            - Type: AWS::S3::Object
+              Values: 
+                - arn:aws:s3
+            # All Lambda functions.
+            - Type: AWS::Lambda::Function
+              Values: 
+                - arn:aws:lambda
+      IncludeGlobalServiceEvents: true
+      IsLogging: true
+      IsMultiRegionTrail: true
+      S3BucketName: !Ref S3LogBucket
+      S3KeyPrefix: CloudTrail
+      TrailName: !Ref CloudTrailName  
+
+## AWS Config ##
+  ConfigDeliveryChannel:
+    Type: AWS::Config::DeliveryChannel
+    DeletionPolicy: Retain
+    Properties:
+      S3BucketName: !Ref S3LogBucket
+      S3KeyPrefix: AWSConfig
+
+  ConfigConfigurationRecorder:
+    DependsOn:
+      - ServiceLinkedRoleForConfig
+    Type: AWS::Config::ConfigurationRecorder
+    DeletionPolicy: Retain
+    Properties:
+      RecordingGroup:
+        AllSupported: 'true'
+        IncludeGlobalResourceTypes: 'true'
+      RoleARN: 
+        !Join 
+          - ''
+          - - 'arn:aws:iam::'
+            - !Ref 'AWS::AccountId'
+            - ':role/aws-service-role/config.amazonaws.com/AWSServiceRoleForConfig'
+
+Outputs:
+  S3LogBucketName:
+    Description: S3 bucket name
+    Value: !Ref S3LogBucket
+  CloudTrailName:
+    Description: CloudTrailName
+    Value: !Ref CloudTrailName
