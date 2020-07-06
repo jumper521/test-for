@@ -1,0 +1,107 @@
+Description: >
+    This template deploys an Application Load Balancer that exposes our various ECS services.
+    We create them it a seperate nested template, so it can be referenced by all of the other nested templates.
+
+Parameters:
+
+    VPC:
+        Type: AWS::EC2::VPC::Id
+        Description: Choose which VPC the Application Load Balancer should be deployed to
+
+    Subnets:
+        Description: Choose which subnets the Application Load Balancer should be deployed to
+        Type: List<AWS::EC2::Subnet::Id>
+
+    SecurityGroup:
+        Description: Select the Security Group to apply to the Application Load Balancer
+        Type: AWS::EC2::SecurityGroup::Id
+
+    LoadBalancerName:
+        Description: The name of Application Load Balancer
+        Type: String
+
+    TargetGroupName:
+        Description: The name of Targetgroup
+        Type: String
+
+    TatgetGroupPort:
+        Description: The port of Targetgroup
+        Type: String
+
+    LoadBalancerListenerport:
+        Description: The port of LoadBalancerListenerport
+        Type: String
+
+    TargetGroupName:
+        Description: The name of Targetgroup
+        Type: String
+
+
+            
+Resources:
+
+    LoadBalancer:
+        Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+        Properties:
+            Name: !Ref LoadBalancerName
+            Scheme: internal
+            Subnets: !Ref Subnets
+            SecurityGroups: 
+                - !Ref SecurityGroup
+            Tags: 
+                - Key: Name
+            Value: !Ref LoadBalancerName
+            AccessLoggingPolicy:
+            S3BucketName: !Ref 'LogsBucket'
+            S3BucketPrefix: Logs
+            Enabled: 'true'
+            EmitInterval: '60'
+        DependsOn: LogsBucketPolicy
+
+    LoadBalancerListener:
+        Type: AWS::ElasticLoadBalancingV2::Listener
+        Properties:
+            LoadBalancerArn: !Ref LoadBalancer
+            Port: !Ref LoadBalancerListenerport
+            Protocol: HTTP 
+            DefaultActions: 
+                - Type: forward
+                  TargetGroupArn: !Ref TargetGroup
+    
+    # We define a default target group here, as this is a mandatory Parameters
+    # when creating an Application Load Balancer Listener. This is not used, instead
+    # a target group is created per-service in each service template (../services/*)
+    TargetGroup:
+        Type: AWS::ElasticLoadBalancingV2::TargetGroup
+        Properties:
+            Name: !Ref TargetGroupName
+            TargetType: ip
+            VpcId: !Ref VPC
+            Port: !Ref TatgetGroupPort
+            Protocol: HTTP
+            Matcher: 
+                HttpCode: 200-299
+            HealthCheckIntervalSeconds: 10
+            HealthCheckPath: /
+            HealthCheckProtocol: HTTP
+            HealthCheckTimeoutSeconds: 5
+            HealthyThresholdCount: 2
+    
+           
+Outputs:
+
+    LoadBalancer:
+        Description: A reference to the Application Load Balancer
+        Value: !Ref LoadBalancer
+
+    LoadBalancerUrl:
+        Description: The URL of the ALB
+        Value: !GetAtt LoadBalancer.DNSName
+
+    Listener:
+        Description: A reference to a port 80 listener
+        Value: !Ref LoadBalancerListener  
+
+    TargetGroup:
+        Description: ARN for TargetGroup
+        Value: !Ref TargetGroup 
