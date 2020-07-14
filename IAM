@@ -1,0 +1,86 @@
+  IamAdmins:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: "IamAdmins"
+      ManagedPolicyName: "IamAdmins"
+      Groups:
+        - "IamAdmins"
+      PolicyDocument: |
+        {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Deny",
+            "Action": [
+              "iam:AddUserToGroup",
+              "iam:AttachGroupPolicy",
+              "iam:AttachUserPolicy",
+              "iam:CreateGroup",
+              "iam:CreateSAMLProvider",
+              "iam:CreateUser",
+              "iam:DeleteGroup",
+              "iam:DeleteGroupPolicy",
+              "iam:DetachGroupPolicy",
+              "iam:DetachUserPolicy",
+              "iam:GetAccountSummary",
+              "iam:PutGroupPolicy",
+              "iam:PutUserPolicy",
+              "iam:UpdateAccountPasswordPolicy",
+              "iam:UpdateGroup",
+              "iam:UpdateUser"
+            ],
+            "Resource": "*"
+          },
+          {
+            "Effect": "Deny",
+            "Action": [
+              "cloudtrail:CreateTrail",
+              "cloudtrail:DeleteTrail",
+              "cloudtrail:StartLogging",
+              "cloudtrail:StopLogging",
+              "cloudtrail:UpdateTrail"
+            ],
+            "Resource": "*"
+          },
+          {
+            "Effect": "Deny",
+            "Action": [
+              "s3:*"
+            ],
+            "Resource": [
+              "arn:aws:s3:::misumi-ec-plat-stg-v02-cloudtrail",
+              "arn:aws:s3:::misumi-ec-plat-stg-v02-cloudtrail/*"
+            ]
+          },
+          {
+            "Effect": "Deny",
+            "Action": [
+              "ec2:DescribeReservedInstances",
+              "ec2:DescribeReservedInstancesOfferings",
+              "ec2:PurchaseReservedInstancesOffering"
+            ],
+            "Resource": "*"
+          },
+          {
+            "Effect": "Deny",
+            "Action": [
+              "aws-portal:ViewUsage",
+              "aws-portal:ViewBilling",
+              "aws-portal:ModifyBilling",
+              "aws-portal:ViewAccount",
+              "aws-portal:ModifyAccount",
+              "aws-portal:ViewPaymentMethods",
+              "aws-portal:ModifyPaymentMethods"
+            ],
+            "Resource": "*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "*"
+            ],
+            "Resource": [
+              "*"
+            ]
+          }]
+          }
