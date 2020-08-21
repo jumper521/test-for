@@ -1,0 +1,255 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description:
+  create RDS(Aurora) Instance, RDS(Aurora) Cluster, DBSubnetGroup, 
+
+# ------------------------------------------------------------#
+# Input Parameters
+# ------------------------------------------------------------# 
+# Set parameters
+
+# ------------------------------------------------------------#
+# Resources
+# ------------------------------------------------------------#
+Resources:
+
+#  AURORA (related resources)
+# ------------------------------------------------------------#
+
+#   DBSubnetGroup
+# ------------------------------------------------------------#
+  xxxxxxxxxx:
+    Type: "AWS::RDS::DBSubnetGroup"
+    Properties: 
+      DBSubnetGroupDescription: initial db subnet group
+      DBSubnetGroupName: "namee"
+      SubnetIds:
+        - { "Fn::ImportValue": subnetname }
+        - { "Fn::ImportValue": subnetname }
+#     Tags:
+#       - Resource Tag 
+
+#   DBClusterParameterGroup
+# ------------------------------------------------------------#
+  xxxxxxxxxx:
+    Type: "AWS::RDS::DBClusterParameterGroup"
+    Properties: 
+      Description: initial setting
+      Family: "aurora-postgresql9.6"
+      Parameters:
+        "client_encoding": "UTF8"
+      Tags:
+        - { Key: "dummy" , Value: "dummy" }
+
+#   DBParameterGroup
+# ------------------------------------------------------------#
+  dpgecpnddjp00:
+    Type: "AWS::RDS::DBParameterGroup"
+    Properties: 
+      Description: initial setting
+      Family: "aurora-postgresql9.6"
+      Parameters:
+        "lc_messages": "C"
+      Tags:
+        - { Key: "dummy" , Value: "dummy" }
+
+#   DBCluster
+# ------------------------------------------------------------#
+  xxxxxxxxx:
+    Type: "AWS::RDS::DBCluster"
+    Properties:
+      AvailabilityZones:
+        - "ap-northeast-1a"
+        - "ap-northeast-1c"
+      BackupRetentionPeriod: 5 # Integer
+      DatabaseName: "postgres" 
+      DBClusterIdentifier: "ecpnddjp00"
+      DBClusterParameterGroupName: !Ref "xxxxxxxxxx"
+      DBSubnetGroupName: !Ref dsngecpnddjp00
+      DeletionProtection: False
+      Engine: "aurora-postgresql" # aurora-postgresql
+      EngineVersion: "9.6.9"
+#     KmsKeyId: String
+      MasterUsername: "postgres"
+      MasterUserPassword: "dxxxxxxxxx"
+      Port: 5432 # Integer
+      PreferredBackupWindow: "00:00-02:00"
+      PreferredMaintenanceWindow: "Mon:03:00-Mon:04:00"
+#     ReplicationSourceIdentifier: String
+#     SnapshotIdentifier: String
+      StorageEncrypted: false
+      Tags:
+        - { Key: "SYSTEM" , Value: "xxx" }
+        - { Key: "ENV" , Value: "DEV" }
+        - { Key: "NAME" , Value: "xxxxxxxx" }
+      VpcSecurityGroupIds:
+        - { "Fn::ImportValue": xxxxxxxxxxx }
+
+#   DBInstance (1)
+# ------------------------------------------------------------#
+  xxxxxxxxxx:
+    Type: AWS::RDS::DBInstance
+    Properties:
+#     AllocatedStorage: String
+      AllowMajorVersionUpgrade: false
+      AutoMinorVersionUpgrade: "True"
+#     AvailabilityZone: String
+#     BackupRetentionPeriod: String
+#     CharacterSetName: String
+#     CopyTagsToSnapshot: Boolean
+      DBClusterIdentifier: !Ref "xxxxxxx" 
+      DBInstanceClass: "db.r4.xlarge"
+#     DBInstanceIdentifier: String
+#     DBName: String
+      DBParameterGroupName: !Ref "xxxxxxx"
+#     DBSecurityGroups:
+#       - String
+#     DBSubnetGroupName: String
+#     DeletionProtection: Boolean
+#     DeleteAutomatedBackups: Boolean
+#     Domain: String
+#     DomainIAMRoleName: String
+#     EnableCloudwatchLogsExports:
+#       - String
+#     EnableIAMDatabaseAuthentication: Boolean
+      EnablePerformanceInsights: "False"
+      Engine: "aurora-postgresql"
+      EngineVersion: "9.6.9"
+#     Iops: String
+#     KmsKeyId: String
+#     LicenseModel: String
+#     MasterUsername: String
+#     MasterUserPassword: String
+      MonitoringInterval: 0 # Integer 0, 1, 5, 10, 15, 30, 60
+#     MonitoringRoleArn: String
+#     MultiAZ: Boolean
+#     OptionGroupName: String
+#     PerformanceInsightsKMSKeyId: String
+#     PerformanceInsightsRetentionPeriod: Integer
+#     Port: String
+#     PreferredBackupWindow: String
+#     PreferredMaintenanceWindow: String
+#      ProcessorFeatures:
+#        - ProcessorFeature
+      PromotionTier: 1
+      PubliclyAccessible: false
+#     SourceDBInstanceIdentifier: String
+#     SourceRegion: String
+#     StorageEncrypted: false
+#     StorageType: String
+      Tags:
+        - { Key: "NAME" , Value: "xxxxxxx" }
+#     Timezone: String
+#     VPCSecurityGroups:
+#       - String
+
+#   DBInstance (2)
+# ------------------------------------------------------------#
+  xxxxxxx:
+    Type: AWS::RDS::DBInstance
+    Properties:
+#     AllocatedStorage: String
+      AllowMajorVersionUpgrade: false
+      AutoMinorVersionUpgrade: "True"
+#     AvailabilityZone: String
+#     BackupRetentionPeriod: String
+#     CharacterSetName: String
+#     CopyTagsToSnapshot: Boolean
+      DBClusterIdentifier: !Ref "xxxxxxx"
+      DBInstanceClass: "db.r4.xlarge"
+#     DBInstanceIdentifier: String
+#     DBName: String
+      DBParameterGroupName: !Ref "xxxxxxxxx"
+#     DBSecurityGroups:
+#       - String
+#     DBSnapshotIdentifier: String
+#     DBSubnetGroupName: String
+#     DeleteAutomatedBackups: Boolean
+#     DeletionProtection: Boolean
+#     Domain: String
+#     DomainIAMRoleName: String
+#     EnableCloudwatchLogsExports:
+#       - String
+#     EnableIAMDatabaseAuthentication: Boolean
+      EnablePerformanceInsights: "False"
+      Engine: "aurora-postgresql"
+      EngineVersion: "9.6.9"
+#     Iops: String
+#     KmsKeyId: String
+#     LicenseModel: String
+#     MasterUsername: String
+#     MasterUserPassword: String
+      MonitoringInterval: 0 # Integer 0, 1, 5, 10, 15, 30, 60
+#     MonitoringRoleArn: String
+#     MultiAZ: Boolean
+#     OptionGroupName: String
+#     PerformanceInsightsKMSKeyId: String
+#     PerformanceInsightsRetentionPeriod: Integer
+#     Port: String
+#     PreferredBackupWindow: String
+#     PreferredMaintenanceWindow: String
+#      ProcessorFeatures:
+#        - ProcessorFeature
+      PromotionTier: 1
+      PubliclyAccessible: false
+#     SourceDBInstanceIdentifier: String
+#     SourceRegion: String
+#     StorageEncrypted: false
+#     StorageType: String
+      Tags:
+        - { Key: "NAME" , Value: "xxxxxxxx" }
+#     Timezone: String
+#     VPCSecurityGroups:
+#       - String
+
+#   DBSubnetGroup
+# ------------------------------------------------------------#
+  dsngeprsddjp00:
+    Type: "AWS::RDS::DBSubnetGroup"
+    Properties: 
+      DBSubnetGroupDescription: initial db subnet group
+      DBSubnetGroupName: "xxxxxxxxx"
+      SubnetIds:
+        - { "Fn::ImportValue": xxxxxxxxx }
+        - { "Fn::ImportValue": xxxxxx }
+#     Tags:
+#       - Resource Tag 
+
+#   DBClusterParameterGroup
+# ------------------------------------------------------------#
+  xxxxxxxxx:
+    Type: "AWS::RDS::DBClusterParameterGroup"
+    Properties: 
+      Description: initial setting
+      Family: "aurora-postgresql9.6"
+      Parameters:
+        "client_encoding": "UTF8"
+      Tags:
+        - { Key: "dummy" , Value: "dummy" }
+
+#   DBParameterGroup
+# ------------------------------------------------------------#
+  xxxxxxxxxx:
+    Type: "AWS::RDS::DBParameterGroup"
+    Properties: 
+      Description: initial setting
+      Family: "aurora-postgresql9.6"
+      Parameters:
+        "lc_messages": "C"
+      Tags:
+        - { Key: "dummy" , Value: "dummy" }
+
+# ------------------------------------------------------------#
+# Output Parameters
+# ------------------------------------------------------------#   
+Outputs:
+
+# AURORA (related resources)
+# ------------------------------------------------------------#
+  xxxxxxx:
+    Description: "AURORA CLUSTER xxxxxxx ID"
+    Value: !Ref "xxxxxxx"
+    Export:
+      Name: "xxxxxxx"
+
+
+
