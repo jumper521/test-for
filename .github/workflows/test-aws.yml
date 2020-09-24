@@ -1,35 +1,3 @@
-Skip to content
-Search or jump to…
-
-Pull requests
-Issues
-Marketplace
-Explore
- 
-@jumper521 
-jumper521
-/
-test-for
-1
-0
-0
-Code
-Issues
-Pull requests
-Actions
-Projects
-Wiki
-Security
-Insights
-Settings
-test-for/.github/workflows/aws.yml
-@jumper521
-jumper521 Update aws.yml
-Latest commit 53eef1a now
- History
- 1 contributor
-80 lines (71 sloc)  3.25 KB
-  
 # This workfslow will build and push a new container image to Amazon ECR,
 # and then will deploy a new task definition to Amazon ECS, when a release is created
 #
@@ -109,15 +77,3 @@ jobs:
         service: sample-app-service
         cluster: default
         wait-for-service-stability: true
-© 2020 GitHub, Inc.
-Terms
-Privacy
-Security
-Status
-Help
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
