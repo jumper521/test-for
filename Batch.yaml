@@ -58,7 +58,7 @@ Resources:
   BatchServertest:
     Type: AWS::Batch::ComputeEnvironment
     Properties: 
-      ComputeEnvironmentName: !Sub "${PJPrefix}-bat-srv-test"
+      ComputeEnvironmentName: !Sub "${PJPrefix}-bat-srv-test01"
       Type: MANAGED
       State: ENABLED
       ServiceRole: !Ref ParamServiceRole
@@ -107,10 +107,10 @@ Resources:
   BatchJobDefinitionC01:
     Type: AWS::Batch::JobDefinition
     Properties: 
-      JobDefinitionName: !Sub "${PJPrefix}-bat-def-test01"
+      JobDefinitionName: !Sub "${PJPrefix}-bat-def-test"
       Type: container
       ContainerProperties:
-        Image: busybox01
+        Image: busybox
         Memory: 512
         Privileged: false
         ReadonlyRootFilesystem: false
