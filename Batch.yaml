@@ -58,7 +58,7 @@ Resources:
   BatchServertest:
     Type: AWS::Batch::ComputeEnvironment
     Properties: 
-      ComputeEnvironmentName: !Sub "${PJPrefix}-bat-srv-test01"
+      ComputeEnvironmentName: !Sub "${PJPrefix}-bat-srv-test"
       Type: MANAGED
       State: ENABLED
       ServiceRole: !Ref ParamServiceRole
