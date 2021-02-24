@@ -107,7 +107,7 @@ Resources:
   BatchJobDefinitionC01:
     Type: AWS::Batch::JobDefinition
     Properties: 
-      JobDefinitionName: !Sub "${PJPrefix}-bat-def-test01"
+      JobDefinitionName: !Sub "${PJPrefix}-bat-def-test"
       Type: container
       ContainerProperties:
         Image: busybox01
