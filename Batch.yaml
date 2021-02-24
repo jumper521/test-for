@@ -110,7 +110,7 @@ Resources:
       JobDefinitionName: !Sub "${PJPrefix}-bat-def-test01"
       Type: container
       ContainerProperties:
-        Image: busybox
+        Image: busybox01
         Memory: 512
         Privileged: false
         ReadonlyRootFilesystem: false
